@@ -9,16 +9,12 @@ class AlarmManager(private val context: Context) {
 
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    fun schedule(requestCode: Int, triggerTimeInMillis: Long): Boolean {
+    fun schedule(requestCode: Int, triggerTimeInMillis: Long,alarmId: String): Boolean {
 
         if (triggerTimeInMillis < System.currentTimeMillis()) {
             return false
         }
-        val pendingIntent = getPendingIntent(requestCode)
-        /*val alarmClockInfo = AlarmManager.AlarmClockInfo(triggerTimeInMillis, pendingIntent)
-        alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
-        return true*/
-
+        val pendingIntent = getPendingIntent(requestCode,alarmId)
 
         alarmManager.setExact(
             AlarmManager.RTC_WAKEUP, // Use RTC_WAKEUP to wake the device
@@ -28,17 +24,19 @@ class AlarmManager(private val context: Context) {
         return true
     }
 
-    private fun getPendingIntent(requestCode: Int): PendingIntent {
+    private fun getPendingIntent(requestCode: Int,alarmId: String): PendingIntent {
         return PendingIntent.getBroadcast(
             context,
             requestCode,
-            getIntent(),
+            getIntent(alarmId),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
 
-    private fun getIntent(): Intent {
-        return Intent(context, AlarmReceiver::class.java)
+    private fun getIntent(alarmId:String): Intent {
+        return Intent(context, AlarmReceiver::class.java).apply {
+            putExtra("alarm_id", alarmId)
+        }
     }
 
 }

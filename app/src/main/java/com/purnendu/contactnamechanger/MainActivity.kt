@@ -33,7 +33,9 @@ class MainActivity : ComponentActivity() {
 
     private fun setUpAlarm(context: Context) {
         val manager = AlarmManager(context)
-        manager.schedule(200, getCustomTimeInMillis(13,10,0))
+        manager.schedule(100, getCustomTimeInMillis(15,24,0),"1")
+        val manager2 = AlarmManager(context)
+        manager2.schedule(200, getCustomTimeInMillis(15,26,0),"2")
     }
 }
 

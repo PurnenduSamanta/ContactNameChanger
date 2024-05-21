@@ -11,18 +11,37 @@ import android.util.Log
 class AlarmReceiver : BroadcastReceiver() {
 
 
-    override fun onReceive(context: Context?, p1: Intent?) {
+    override fun onReceive(context: Context?, intent: Intent?) {
 
         if (context == null)
             return
 
-        updateContactDisplayNameIfNumberExists(
-            context = context,
-            phoneNumber = "0987654321",
-            displayName = "Swarnendu"
-        )
+        val alarmId = intent?.getStringExtra("alarm_id")
 
+        println(alarmId)
 
+        println("Alarm received")
+
+        when (alarmId) {
+            "1" -> {
+                updateContactDisplayNameIfNumberExists(
+                    context = context,
+                    phoneNumber = "0987654321",
+                    displayName = "Jeet"
+                )
+            }
+            "2" -> {
+                updateContactDisplayNameIfNumberExists(
+                    context = context,
+                    phoneNumber = "0987654321",
+                    displayName = "Swarnendu"
+                )
+            }
+
+            else -> {
+
+            }
+        }
     }
 
     private fun getContactDetailsFromPhoneNumber(context: Context, phoneNumber: String): Contact? {
