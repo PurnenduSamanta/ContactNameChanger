@@ -12,10 +12,7 @@ import androidx.compose.ui.unit.sp
 fun Contacts(modifier: Modifier = Modifier,viewModel: ContactListingViewModel = androidx.lifecycle.viewmodel.compose.viewModel())
 {
 
-    val contact =   remember { mutableStateOf(viewModel.getContactDetailsFromPhoneNumber("1234567890"))}
 
-    viewModel.updateContactDisplayNameIfNumberExists("1234567890","Test")
 
-    contact.value?.let { Text(text = it.name, color = Color.Green, fontSize = 30.sp) }
 
 }

@@ -1,5 +1,6 @@
 package com.purnendu.contactnamechanger
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,10 +14,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.purnendu.contactnamechanger.screen.Contacts
 import com.purnendu.contactnamechanger.ui.theme.ContactNameChangerTheme
+import com.purnendu.contactnamechanger.utils.AlarmManager
+import com.purnendu.contactnamechanger.utils.getCustomTimeInMillis
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setUpAlarm(application)
         enableEdgeToEdge()
         setContent {
             ContactNameChangerTheme {
@@ -25,6 +29,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun setUpAlarm(context: Context) {
+        val manager = AlarmManager(context)
+        manager.schedule(200, getCustomTimeInMillis(13,10,0))
     }
 }
 
