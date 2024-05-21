@@ -48,45 +48,6 @@ class ContactListingViewModel(private val application: Application): AndroidView
     }
 
 
-
-    fun getContactByPhone(phoneNumber: String): Contact? {
-        val contentResolver = application.contentResolver // Use safe call operator
-
-        val projection = arrayOf(
-            ContactsContract.Contacts._ID,
-            ContactsContract.Contacts.DISPLAY_NAME,
-            ContactsContract.CommonDataKinds.Phone.NUMBER
-        )
-
-        val selection = ContactsContract.CommonDataKinds.Phone.NUMBER + " = ?"
-        val selectionArgs = arrayOf(phoneNumber)
-
-        val cursor = contentResolver?.query(
-            ContactsContract.Contacts.CONTENT_URI,
-            projection,
-            selection,
-            selectionArgs,
-            null
-        )
-
-        if (cursor != null && cursor.moveToFirst()) {
-            val contactId = cursor.getLong(cursor.getColumnIndex(ContactsContract.Contacts._ID))
-            val nameColumnIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
-            val name = if (nameColumnIndex >= 0) {
-                cursor.getString(nameColumnIndex)
-            } else {
-                "" // Handle case where name column is missing
-            }
-            val phone = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-            cursor.close()
-            return Contact(contactId, name, phone)
-        } else {
-            cursor?.close()
-            return null // No contact found with the phone number
-        }
-    }
-
-
     fun getContactDetailsFromPhoneNumber( phoneNumber: String): Contact? {
         val contentResolver = application.contentResolver
 
@@ -123,21 +84,21 @@ class ContactListingViewModel(private val application: Application): AndroidView
         return null
     }
 
-    fun updateContactNoteIfNumberExists( phoneNumber: String, note: String) {
+    fun updateContactDisplayNameIfNumberExists(phoneNumber: String, displayName: String) {
         val contact = getContactDetailsFromPhoneNumber(phoneNumber)
 
         if (contact != null) {
             val operations = arrayListOf<ContentProviderOperation>()
 
             // Add the note to the contact
-            operations.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
-                .withSelection(
-                    "${ContactsContract.PhoneLookup._ID}=?",
-                    arrayOf(contact.id.toString())
-                )
-                .withValue(ContactsContract.Contacts._ID, contact.id)
-                .withValue(ContactsContract.Contacts.DISPLAY_NAME, note)
-                .build()
+            operations.add(
+                ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                    .withSelection(
+                        "${ContactsContract.Data.CONTACT_ID}=? AND ${ContactsContract.Data.MIMETYPE}=?",
+                        arrayOf(contact.id.toString(), ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                    )
+                    .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, displayName)
+                    .build()
             )
 
             try {
