@@ -24,9 +24,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ContactNameChangerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Contacts( modifier = Modifier.padding(innerPadding))
-                }
+                Contacts()
             }
         }
     }
