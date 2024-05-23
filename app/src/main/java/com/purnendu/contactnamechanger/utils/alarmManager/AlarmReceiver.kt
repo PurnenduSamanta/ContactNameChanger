@@ -1,4 +1,4 @@
-package com.purnendu.contactnamechanger.utils
+package com.purnendu.contactnamechanger.utils.alarmManager
 
 import android.content.BroadcastReceiver
 import android.content.ContentProviderOperation
@@ -7,6 +7,7 @@ import android.content.Intent
 import android.database.Cursor
 import android.provider.ContactsContract
 import android.util.Log
+import com.purnendu.contactnamechanger.model.Contact
 
 class AlarmReceiver : BroadcastReceiver() {
 
@@ -81,7 +82,7 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 
 
-    data class Contact(val id: Long, val name: String, val phNoneNumber: String)
+
 
     private fun updateContactDisplayNameIfNumberExists(
         context: Context,

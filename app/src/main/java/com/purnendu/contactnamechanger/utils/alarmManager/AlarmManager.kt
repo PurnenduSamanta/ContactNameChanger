@@ -1,4 +1,4 @@
-package com.purnendu.contactnamechanger.utils
+package com.purnendu.contactnamechanger.utils.alarmManager
 
 import android.app.AlarmManager
 import android.app.PendingIntent
