@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -42,12 +43,17 @@ fun  CustomPhDialog(
     title: String,
     label:String,
     phNo:String,
+    modifiedPhNo:String,
     isOperationGoing:Boolean,
     isContactAvailable:Boolean,
+    startingTime:String,
+    endingTime:String,
     onPhNoChange:(String)->Unit,
     onCrossIconClick:()->Unit,
     onDoneButtonClick:()->Unit,
-    onDismissRequest: () -> Unit,
+    onModifiedNoChange: (String) -> Unit,
+    onSelectOfStartingTime:()->Unit,
+    onSelectOfEndingTime:()->Unit
 ) {
 
     val rotation = animateFloatAsState(
@@ -64,7 +70,7 @@ fun  CustomPhDialog(
             dismissOnBackPress = false,
             dismissOnClickOutside = false
         ),
-        onDismissRequest = { onDismissRequest() })
+        onDismissRequest = {  })
     {
 
 
@@ -114,7 +120,8 @@ fun  CustomPhDialog(
                         .background(Color.Cyan, shape = CircleShape)
                         .border(color = Color.Gray, width = 1.dp, shape = CircleShape)
                         .padding(10.dp)
-                        .clip(CircleShape).clickable { onDoneButtonClick() }){
+                        .clip(CircleShape)
+                        .clickable { onDoneButtonClick() }){
                        if(isOperationGoing)
                            Icon(modifier = Modifier
                                .size(30.dp)
@@ -133,9 +140,27 @@ fun  CustomPhDialog(
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     label = {Text(text = "Enter name to be modified")},
-                    value = "",
-                    onValueChange ={ }
+                    value = modifiedPhNo,
+                    onValueChange ={ onModifiedNoChange(it)}
                 )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+
+                    Button(modifier = Modifier.weight(0.45f), onClick = { onSelectOfStartingTime() }) {
+                        Text(text = startingTime.ifEmpty { "Starting time" })
+                    }
+
+                    Spacer(modifier = Modifier.fillMaxWidth(0.1f))
+
+                    Button(modifier = Modifier.weight(0.45f),onClick = { onSelectOfEndingTime() }) {
+                        Text(text = endingTime.ifEmpty { "Ending time" })
+                    }
+
+                }
+
+
             }
 
         }

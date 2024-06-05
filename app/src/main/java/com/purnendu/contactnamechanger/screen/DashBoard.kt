@@ -8,12 +8,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -21,7 +22,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.purnendu.contactnamechanger.components.CustomPhDialog
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import androidx.compose.ui.window.Dialog
+import com.purnendu.contactnamechanger.components.TimePicker
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashBoard(
     modifier: Modifier = Modifier,
@@ -30,38 +37,15 @@ fun DashBoard(
 
     val isPhNoDialogVisible = remember { mutableStateOf(false) }
     val phNo = remember { mutableStateOf("") }
-    val isOperationGoing = remember { mutableStateOf(false) }
-    val isDoneButtonClicked = remember { mutableStateOf(false) }
-    val isContactExist = remember { mutableStateOf(false) }
+    val modifiedPhNo = remember { mutableStateOf("") }
+    val startingTime = remember { mutableStateOf("") }
+    val endingTime = remember { mutableStateOf("") }
+    val isStartingTimePickerVisible = remember { mutableStateOf(false) }
+    val isEndingTimePickerVisible = remember { mutableStateOf(false) }
+    val startingTimePickerState = rememberTimePickerState()
+    val endingTimePickerState = rememberTimePickerState()
+    val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
 
-
-    LaunchedEffect(key1 = isDoneButtonClicked.value)
-    {
-
-        if(!isDoneButtonClicked.value)
-            return@LaunchedEffect
-
-        if(phNo.value.isEmpty() || phNo.value.isBlank())
-            return@LaunchedEffect
-
-        isOperationGoing.value=true
-
-        val contact=viewModel.isContactExist(phNo.value)
-        println("hello")
-        isPhNoDialogVisible.value=false
-        if(contact==null)
-            return@LaunchedEffect
-        else
-        {
-            isContactExist.value=true
-        }
-
-
-
-
-
-
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -75,21 +59,54 @@ fun DashBoard(
         floatingActionButtonPosition = FabPosition.End
     )
     {
+            TimePicker(
+                showDialog = isStartingTimePickerVisible.value,
+                timePickerState = startingTimePickerState,
+                onTimeSet = {
+                    startingTime.value=it
+                    isStartingTimePickerVisible.value=false
+                }
+            )
+            {
+                isStartingTimePickerVisible.value=false
+            }
+        TimePicker(
+            showDialog = isEndingTimePickerVisible.value,
+            timePickerState = endingTimePickerState,
+            onTimeSet = {
+                endingTime.value=it
+                isEndingTimePickerVisible.value=false}
+        )
+        {
+            isEndingTimePickerVisible.value=false
+        }
 
 
         if(isPhNoDialogVisible.value)
         {
             CustomPhDialog(
-                title = "Enter Ph No",
-                label = "Ph No",
+                title = "Enter Mobile No",
+                label = "Mobile No",
                 phNo = phNo.value,
+                modifiedPhNo = modifiedPhNo.value,
                 onPhNoChange = {phNo.value=it},
-                onDoneButtonClick = { isDoneButtonClicked.value=true},
-                isOperationGoing = isOperationGoing.value,
-                isContactAvailable = isContactExist.value ,
-                onCrossIconClick = { isPhNoDialogVisible.value=false }) {
-
-            }
+                startingTime = startingTime.value,
+                endingTime = endingTime.value,
+                onDoneButtonClick = {
+                    if(phNo.value.isEmpty() || phNo.value.isBlank())
+                        return@CustomPhDialog
+                    viewModel.isContactExist(phNo.value)
+                },
+                onModifiedNoChange = {modifiedPhNo.value=it},
+                isOperationGoing = false,
+                isContactAvailable = viewModel.isContactExist.value!=null ,
+                onCrossIconClick = {
+                    phNo.value=""
+                    modifiedPhNo.value=""
+                    viewModel.setContactStatusToNull()
+                    isPhNoDialogVisible.value=false },
+                onSelectOfStartingTime = { isStartingTimePickerVisible.value=true},
+                onSelectOfEndingTime = {isEndingTimePickerVisible.value=true})
         }
 
 
