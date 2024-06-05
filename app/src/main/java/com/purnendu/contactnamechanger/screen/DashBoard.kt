@@ -22,10 +22,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.purnendu.contactnamechanger.components.CustomPhDialog
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
-import androidx.compose.ui.window.Dialog
 import com.purnendu.contactnamechanger.components.TimePicker
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,7 +40,6 @@ fun DashBoard(
     val isEndingTimePickerVisible = remember { mutableStateOf(false) }
     val startingTimePickerState = rememberTimePickerState()
     val endingTimePickerState = rememberTimePickerState()
-    val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
 
 
     Scaffold(
@@ -104,7 +99,12 @@ fun DashBoard(
                     phNo.value=""
                     modifiedPhNo.value=""
                     viewModel.setContactStatusToNull()
-                    isPhNoDialogVisible.value=false },
+                    isPhNoDialogVisible.value=false
+                    startingTime.value=""
+                    endingTime.value=""
+                    isStartingTimePickerVisible.value=false
+                    isEndingTimePickerVisible.value=false
+                },
                 onSelectOfStartingTime = { isStartingTimePickerVisible.value=true},
                 onSelectOfEndingTime = {isEndingTimePickerVisible.value=true})
         }
