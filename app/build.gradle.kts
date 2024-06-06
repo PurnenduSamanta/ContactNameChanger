@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias (libs.plugins.devtools.ksp)
+    alias (libs.plugins.compose.compiler)
 }
 
 android {
@@ -39,9 +41,6 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -67,4 +66,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    //Room
+    implementation (libs.androidx.room.runtime)
+    implementation (libs.androidx.room.ktx)
+    ksp (libs.androidx.room.compiler)
 }

@@ -44,17 +44,20 @@ fun  CustomPhDialog(
     title: String,
     label:String,
     phNo:String,
-    modifiedPhNo:String,
+    modifiedName:String,
+    alarmName:String,
     isOperationGoing:Boolean,
     isContactAvailable:Boolean,
     startingTime:String,
     endingTime:String,
+    onAlarmNameChange:(String)->Unit,
     onPhNoChange:(String)->Unit,
     onCrossIconClick:()->Unit,
     onDoneButtonClick:()->Unit,
-    onModifiedNoChange: (String) -> Unit,
+    onModifiedNameChange: (String) -> Unit,
     onSelectOfStartingTime:()->Unit,
-    onSelectOfEndingTime:()->Unit
+    onSelectOfEndingTime:()->Unit,
+    onSaveButtonClick: () -> Unit
 ) {
 
     val rotation = animateFloatAsState(
@@ -140,9 +143,18 @@ fun  CustomPhDialog(
 
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
+                    label = {Text(text = "Alarm name")},
+                    value = alarmName,
+                    onValueChange ={ onAlarmNameChange(it)}
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
                     label = {Text(text = "Enter name to be modified")},
-                    value = modifiedPhNo,
-                    onValueChange ={ onModifiedNoChange(it)}
+                    value = modifiedName,
+                    onValueChange ={ onModifiedNameChange(it)}
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -165,7 +177,7 @@ fun  CustomPhDialog(
 
                 OutlinedButton(
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = {  }) {
+                    onClick = { onSaveButtonClick() }) {
                     Text(text = "Done")
                 }
 

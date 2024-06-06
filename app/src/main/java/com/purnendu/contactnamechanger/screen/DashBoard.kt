@@ -1,20 +1,28 @@
 package com.purnendu.contactnamechanger.screen
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -32,14 +40,16 @@ fun DashBoard(
 ) {
 
     val isPhNoDialogVisible = remember { mutableStateOf(false) }
+    val alarmName = remember { mutableStateOf("") }
     val phNo = remember { mutableStateOf("") }
-    val modifiedPhNo = remember { mutableStateOf("") }
-    val startingTime = remember { mutableStateOf("") }
-    val endingTime = remember { mutableStateOf("") }
+    val modifiedName = remember { mutableStateOf("") }
+    val startingTime = remember { mutableStateOf(Pair("",0L)) }
+    val endingTime =  remember { mutableStateOf(Pair("",0L)) }
     val isStartingTimePickerVisible = remember { mutableStateOf(false) }
     val isEndingTimePickerVisible = remember { mutableStateOf(false) }
-    val startingTimePickerState = rememberTimePickerState()
-    val endingTimePickerState = rememberTimePickerState()
+    val startingTimePickerState = rememberTimePickerState(is24Hour = true)
+    val endingTimePickerState = rememberTimePickerState(is24Hour = true)
+    val alarmList = viewModel.getAlarms().collectAsState(initial = emptyList()).value
 
 
     Scaffold(
@@ -58,7 +68,8 @@ fun DashBoard(
                 showDialog = isStartingTimePickerVisible.value,
                 timePickerState = startingTimePickerState,
                 onTimeSet = {
-                    startingTime.value=it
+                    formattedTime,timeInMilliSecond->
+                    startingTime.value=Pair(formattedTime,timeInMilliSecond)
                     isStartingTimePickerVisible.value=false
                 }
             )
@@ -69,7 +80,8 @@ fun DashBoard(
             showDialog = isEndingTimePickerVisible.value,
             timePickerState = endingTimePickerState,
             onTimeSet = {
-                endingTime.value=it
+                    formattedTime,timeInMilliSecond->
+                endingTime.value=Pair(formattedTime,timeInMilliSecond)
                 isEndingTimePickerVisible.value=false}
         )
         {
@@ -83,36 +95,69 @@ fun DashBoard(
                 title = "Enter Mobile No",
                 label = "Mobile No",
                 phNo = phNo.value,
-                modifiedPhNo = modifiedPhNo.value,
+                alarmName = alarmName.value,
+                modifiedName = modifiedName.value,
                 onPhNoChange = {phNo.value=it},
-                startingTime = startingTime.value,
-                endingTime = endingTime.value,
+                startingTime = startingTime.value.first,
+                endingTime = endingTime.value.first,
+                onAlarmNameChange = {alarmName.value=it},
                 onDoneButtonClick = {
                     if(phNo.value.isEmpty() || phNo.value.isBlank())
                         return@CustomPhDialog
                     viewModel.isContactExist(phNo.value)
                 },
-                onModifiedNoChange = {modifiedPhNo.value=it},
+                onModifiedNameChange = {modifiedName.value=it},
                 isOperationGoing = false,
                 isContactAvailable = viewModel.isContactExist.value!=null ,
                 onCrossIconClick = {
                     phNo.value=""
-                    modifiedPhNo.value=""
+                    alarmName.value=""
+                    modifiedName.value=""
                     viewModel.setContactStatusToNull()
                     isPhNoDialogVisible.value=false
-                    startingTime.value=""
-                    endingTime.value=""
+                    startingTime.value=Pair("",0L)
+                    endingTime.value=Pair("",0L)
                     isStartingTimePickerVisible.value=false
                     isEndingTimePickerVisible.value=false
                 },
                 onSelectOfStartingTime = { isStartingTimePickerVisible.value=true},
-                onSelectOfEndingTime = {isEndingTimePickerVisible.value=true})
+                onSelectOfEndingTime = {isEndingTimePickerVisible.value=true},
+                onSaveButtonClick = {
+                    viewModel.setAlarm(
+                        alarmName=alarmName.value,
+                        startAlarmTime = startingTime.value.second,
+                        endAlarmTime=endingTime.value.second,
+                        phNo= phNo.value,
+                        name= modifiedName.value
+                    )
+                })
         }
 
 
         Box(modifier = Modifier
             .padding(it)
             .fillMaxSize()) {
+            
+            LazyColumn(modifier = Modifier.fillMaxWidth()) 
+            {
+             itemsIndexed(alarmList)
+             {
+                 index,item->
+                 
+                 Card(modifier = Modifier
+                     .fillMaxWidth()
+                     .padding(5.dp)) 
+                 {
+                     Text(text = item.alarmName)
+                     Spacer(modifier = Modifier.height(5.dp))
+                     Text(text = item.alarmId)
+                 }
+                 if(index!=alarmList.lastIndex)
+                     Spacer(modifier = Modifier.height(10.dp))
+
+
+             }   
+            }
 
         }
 

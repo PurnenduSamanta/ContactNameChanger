@@ -21,13 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import com.purnendu.contactnamechanger.utils.getCustomTimeInMillis
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimePicker(
     showDialog: Boolean,
     timePickerState: TimePickerState,
-    onTimeSet: (time: String) -> Unit,
+    onTimeSet: (formattedTime: String,timeInMilliSec:Long) -> Unit,
     onDismissRequest: () -> Unit,
 
     ) {
@@ -83,16 +84,17 @@ fun TimePicker(
                     onClick = {
                         val mHour = timePickerState.hour
                         val mMinute = timePickerState.minute
-                        onTimeSet(
-                            if (mHour in 0..9 && mMinute in 0..9)
-                                "0$mHour:0$mMinute"
-                            else if (mHour in 0..9)
-                                "0$mHour:$mMinute"
-                            else if (mMinute in 0..9)
-                                "$mHour:0$mMinute"
-                            else
-                                "$mHour:$mMinute"
-                        )
+                        val formattedTime = if (mHour in 0..9 && mMinute in 0..9)
+                            "0$mHour:0$mMinute"
+                        else if (mHour in 0..9)
+                            "0$mHour:$mMinute"
+                        else if (mMinute in 0..9)
+                            "$mHour:0$mMinute"
+                        else
+                            "$mHour:$mMinute"
+
+                        val timeInMilliSec = getCustomTimeInMillis(mHour,mMinute,0)
+                        onTimeSet(formattedTime,timeInMilliSec)
                     }
                 ) {
                     Text(text = "Confirm")

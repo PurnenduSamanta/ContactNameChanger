@@ -7,7 +7,12 @@ import android.content.Intent
 import android.database.Cursor
 import android.provider.ContactsContract
 import android.util.Log
+import com.purnendu.contactnamechanger.database.AlarmDatabase
+import com.purnendu.contactnamechanger.database.daos.AlarmDao
 import com.purnendu.contactnamechanger.model.Contact
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AlarmReceiver : BroadcastReceiver() {
 
@@ -18,30 +23,15 @@ class AlarmReceiver : BroadcastReceiver() {
             return
 
         val alarmId = intent?.getStringExtra("alarm_id")
+        val phoneNo = intent?.getStringExtra("phoneNo")
+        val displayName = intent?.getStringExtra("displayName")
 
-        println(alarmId)
-
-        println("Alarm received")
-
-        when (alarmId) {
-            "1" -> {
-                updateContactDisplayNameIfNumberExists(
-                    context = context,
-                    phoneNumber = "0987654321",
-                    displayName = "Jeet"
-                )
-            }
-            "2" -> {
-                updateContactDisplayNameIfNumberExists(
-                    context = context,
-                    phoneNumber = "0987654321",
-                    displayName = "Swarnendu"
-                )
-            }
-
-            else -> {
-
-            }
+        if (phoneNo != null && displayName!=null) {
+            updateContactDisplayNameIfNumberExists(
+                context = context,
+                phoneNumber = phoneNo,
+                displayName = displayName
+            )
         }
     }
 
