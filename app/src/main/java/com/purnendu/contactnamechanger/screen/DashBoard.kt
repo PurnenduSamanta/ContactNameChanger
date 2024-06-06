@@ -1,5 +1,6 @@
 package com.purnendu.contactnamechanger.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
@@ -128,7 +130,8 @@ fun DashBoard(
                         startAlarmTime = startingTime.value.second,
                         endAlarmTime=endingTime.value.second,
                         phNo= phNo.value,
-                        name= modifiedName.value
+                        name = viewModel.isContactExist.value?.name ?: "",
+                        modifiedName= modifiedName.value
                     )
                 })
         }
@@ -151,6 +154,11 @@ fun DashBoard(
                      Text(text = item.alarmName)
                      Spacer(modifier = Modifier.height(5.dp))
                      Text(text = item.alarmId)
+                     Spacer(modifier = Modifier.height(5.dp))
+                     Icon(modifier = Modifier.clickable { viewModel.cancelAlarm(
+                         startingRequestCode=item.startingAlarmRequestCode,
+                         endingRequestCode= item.endingAlarmRequestCode
+                     ) }, imageVector = Icons.Default.Delete, tint = Color.Unspecified, contentDescription = "deleteIcon")
                  }
                  if(index!=alarmList.lastIndex)
                      Spacer(modifier = Modifier.height(10.dp))

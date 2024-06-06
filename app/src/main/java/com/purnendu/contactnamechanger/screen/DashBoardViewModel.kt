@@ -9,7 +9,6 @@ import com.purnendu.contactnamechanger.database.models.Alarm
 import com.purnendu.contactnamechanger.model.Contact
 import com.purnendu.contactnamechanger.utils.alarmManager.AlarmManager
 import com.purnendu.contactnamechanger.utils.contactOperation.isContactExist
-import com.purnendu.contactnamechanger.utils.getCustomTimeInMillis
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -31,7 +30,7 @@ class DashBoardViewModel(private val application: Application): AndroidViewModel
     fun setContactStatusToNull() {_isContactExist.value = null }
 
     fun isContactExist(phNo:String) = viewModelScope.launch (Dispatchers.IO) { _isContactExist.value = isContactExist(application, phNo) }
-    fun setAlarm(alarmName:String,startAlarmTime:Long, endAlarmTime:Long,phNo:String,name:String)
+    fun setAlarm(alarmName:String, startAlarmTime:Long, endAlarmTime:Long, phNo:String,name:String, modifiedName:String)
     {
         _isAlarmSetSuccessfully.value=false
         val startAlarmId = UUID.randomUUID()
@@ -40,7 +39,7 @@ class DashBoardViewModel(private val application: Application): AndroidViewModel
         val endAlarmRequestCode = Random.nextInt()
 
         val manager = AlarmManager(application)
-        val isStartingAlarmSet = manager.schedule(startAlarmRequestCode, startAlarmTime, startAlarmId.toString(),phNo,name)
+        val isStartingAlarmSet = manager.schedule(startAlarmRequestCode, startAlarmTime, startAlarmId.toString(),phNo,modifiedName)
         val manager2 = AlarmManager(application)
         val isEndingAlarmSet =manager2.schedule(endAlarmRequestCode, endAlarmTime, endAlarmId.toString(),phNo,name)
 
@@ -67,10 +66,14 @@ class DashBoardViewModel(private val application: Application): AndroidViewModel
 
     fun getAlarms() = alarmDao.getAllAlarms()
 
-    fun cancelAlarm(requestCode:String)
+    fun cancelAlarm(startingRequestCode:String,endingRequestCode:String)
     {
         val manager = AlarmManager(application)
-        manager.cancelAlarm(application,requestCode.toInt())
+        manager.cancelAlarm(application,startingRequestCode.toInt())
+        manager.cancelAlarm(application,endingRequestCode.toInt())
+        viewModelScope.launch(Dispatchers.IO) {
+            alarmDao.deleteAlarm(startingRequestCode,endingRequestCode)
+        }
 
     }
 }
