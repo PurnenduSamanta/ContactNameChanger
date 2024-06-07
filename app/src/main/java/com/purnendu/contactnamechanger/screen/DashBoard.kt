@@ -133,6 +133,17 @@ fun DashBoard(
                         name = viewModel.isContactExist.value?.name ?: "",
                         modifiedName= modifiedName.value
                     )
+
+
+                    phNo.value=""
+                    alarmName.value=""
+                    modifiedName.value=""
+                    viewModel.setContactStatusToNull()
+                    isPhNoDialogVisible.value=false
+                    startingTime.value=Pair("",0L)
+                    endingTime.value=Pair("",0L)
+                    isStartingTimePickerVisible.value=false
+                    isEndingTimePickerVisible.value=false
                 })
         }
 

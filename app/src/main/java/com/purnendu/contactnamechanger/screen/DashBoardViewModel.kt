@@ -69,8 +69,9 @@ class DashBoardViewModel(private val application: Application): AndroidViewModel
     fun cancelAlarm(startingRequestCode:String,endingRequestCode:String)
     {
         val manager = AlarmManager(application)
+        val manager2 = AlarmManager(application)
         manager.cancelAlarm(application,startingRequestCode.toInt())
-        manager.cancelAlarm(application,endingRequestCode.toInt())
+        manager2.cancelAlarm(application,endingRequestCode.toInt())
         viewModelScope.launch(Dispatchers.IO) {
             alarmDao.deleteAlarm(startingRequestCode,endingRequestCode)
         }

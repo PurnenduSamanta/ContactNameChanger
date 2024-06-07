@@ -46,11 +46,27 @@ class AlarmManager(private val context: Context) {
         }
     }
     fun cancelAlarm(context: Context, requestCode: Int) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val alarmIntent = getPendingIntent(context, requestCode)
+        /*val alarmIntent = getPendingIntent(context, requestCode)
         alarmManager.cancel(alarmIntent)
         // You may also want to cancel the PendingIntent
-        alarmIntent.cancel()
+        alarmIntent.cancel()*/
+
+
+        // Create an intent for the alarm receiver
+        val intent = Intent(context, AlarmReceiver::class.java)
+        // Create a PendingIntent with the same request code used when setting the alarm
+        val pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent,
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        // Get the AlarmManager service
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        // Cancel the alarm
+        alarmManager.cancel(pendingIntent)
+        // Cancel the PendingIntent
+        pendingIntent.cancel()
+
+
+
+
     }
     private fun getPendingIntent(context: Context, requestCode: Int): PendingIntent {
         val intent = Intent(context, AlarmReceiver::class.java)
