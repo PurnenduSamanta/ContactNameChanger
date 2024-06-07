@@ -27,12 +27,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.purnendu.contactnamechanger.components.CustomPhDialog
 import com.purnendu.contactnamechanger.components.TimePicker
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,6 +43,8 @@ fun DashBoard(
     modifier: Modifier = Modifier,
     viewModel: DashBoardViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
+
+    val scope = rememberCoroutineScope()
 
     val isPhNoDialogVisible = remember { mutableStateOf(false) }
     val alarmName = remember { mutableStateOf("") }
@@ -160,6 +165,11 @@ fun DashBoard(
                  
                  Card(modifier = Modifier
                      .fillMaxWidth()
+                     .clickable {
+                         isPhNoDialogVisible.value = true
+                         scope.launch {  viewModel.getAlarm(item.alarmId) }
+
+                     }
                      .padding(5.dp)) 
                  {
                      Text(text = item.alarmName)

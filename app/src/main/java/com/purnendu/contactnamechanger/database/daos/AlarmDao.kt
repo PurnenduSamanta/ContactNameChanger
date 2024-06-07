@@ -18,6 +18,8 @@ interface AlarmDao {
 
     @Query("SELECT * FROM Alarm")
     fun getAllAlarms(): Flow<List<Alarm>>
+    @Query("SELECT * FROM Alarm WHERE alarmId==:alarmId")
+    suspend fun getAlarm(alarmId:String): Alarm?
     @Query("DELETE FROM Alarm where startingAlarmRequestCode ==:startingRequestCode AND endingAlarmRequestCode ==:endingRequestCode")
     suspend fun deleteAlarm(startingRequestCode:String,endingRequestCode:String)
 }

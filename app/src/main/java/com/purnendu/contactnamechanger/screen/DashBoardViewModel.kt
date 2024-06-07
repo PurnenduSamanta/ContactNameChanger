@@ -65,6 +65,7 @@ class DashBoardViewModel(private val application: Application): AndroidViewModel
     }
 
     fun getAlarms() = alarmDao.getAllAlarms()
+    suspend fun getAlarm(alarmId:String) = alarmDao.getAlarm(alarmId)
 
     fun cancelAlarm(startingRequestCode:String,endingRequestCode:String)
     {
