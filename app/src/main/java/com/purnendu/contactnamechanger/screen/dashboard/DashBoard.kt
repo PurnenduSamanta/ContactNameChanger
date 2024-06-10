@@ -101,7 +101,7 @@ fun DashBoard(
 
         if (isPhNoDialogVisible.value) {
             CustomPhDialog(
-                title = "Enter Mobile No",
+                title = "Select Contact",
                 label = "Mobile No",
                 phNo = phNo.value,
                 alarmName = alarmName.value,

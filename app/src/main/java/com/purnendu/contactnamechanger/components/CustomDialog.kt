@@ -26,7 +26,9 @@ import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,27 +40,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.text.isDigitsOnly
 
 @Composable
-fun  CustomPhDialog(
+fun CustomPhDialog(
     title: String,
-    label:String,
-    phNo:String,
-    modifiedName:String,
-    alarmName:String,
-    isOperationGoing:Boolean,
-    isContactAvailable:Boolean,
-    startingTime:String,
-    endingTime:String,
-    onAlarmNameChange:(String)->Unit,
-    onPhNoChange:(String)->Unit,
-    onCrossIconClick:()->Unit,
-    onDoneButtonClick:()->Unit,
+    label: String,
+    phNo: String,
+    modifiedName: String,
+    alarmName: String,
+    isOperationGoing: Boolean,
+    isContactAvailable: Boolean,
+    startingTime: String,
+    endingTime: String,
+    onAlarmNameChange: (String) -> Unit,
+    onPhNoChange: (String) -> Unit,
+    onCrossIconClick: () -> Unit,
+    onDoneButtonClick: () -> Unit,
     onModifiedNameChange: (String) -> Unit,
-    onSelectOfStartingTime:()->Unit,
-    onSelectOfEndingTime:()->Unit,
+    onSelectOfStartingTime: () -> Unit,
+    onSelectOfEndingTime: () -> Unit,
     onSaveButtonClick: () -> Unit
 ) {
+
+    val phoneRegex = "^[0-9]{10}$".toRegex()
 
     val rotation = animateFloatAsState(
         targetValue = 360f,
@@ -66,7 +71,8 @@ fun  CustomPhDialog(
             animation = tween(
                 durationMillis = 400,
                 easing = FastOutSlowInEasing,
-            )), label = "animation"
+            )
+        ), label = "animation"
     )
 
     Dialog(
@@ -74,7 +80,7 @@ fun  CustomPhDialog(
             dismissOnBackPress = false,
             dismissOnClickOutside = false
         ),
-        onDismissRequest = {  })
+        onDismissRequest = { })
     {
 
 
@@ -97,7 +103,12 @@ fun  CustomPhDialog(
                     fontWeight = FontWeight.SemiBold
                 )
 
-                Icon(modifier = Modifier.clickable { onCrossIconClick() }, imageVector = Icons.Default.Clear, contentDescription = "clearIcon",tint=Color.Black)
+                Icon(
+                    modifier = Modifier.clickable { onCrossIconClick() },
+                    imageVector = Icons.Default.Clear,
+                    contentDescription = "clearIcon",
+                    tint = Color.Black
+                )
             }
 
 
@@ -110,9 +121,18 @@ fun  CustomPhDialog(
             ) {
                 OutlinedTextField(
                     modifier = Modifier.weight(0.8f),
-                    label = {Text(text = label)},
+                    label = { Text(text = label, color = Color.Black) },
                     value = phNo,
-                    onValueChange ={onPhNoChange(it) }
+                    onValueChange =
+                    {
+                        if (phoneRegex.matches(it)) {
+                            onPhNoChange(it)
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
                 )
 
                 Spacer(modifier = Modifier.weight(0.025f))
@@ -125,49 +145,65 @@ fun  CustomPhDialog(
                         .border(color = Color.Gray, width = 1.dp, shape = CircleShape)
                         .padding(10.dp)
                         .clip(CircleShape)
-                        .clickable { onDoneButtonClick() }){
-                       if(isOperationGoing)
-                           Icon(modifier = Modifier
-                               .size(30.dp)
-                               .rotate(rotation.value), imageVector = Icons.Default.Refresh, tint = Color.Blue, contentDescription = "refreshIcon")
+                        .clickable { onDoneButtonClick() }) {
+                        if (isOperationGoing)
+                            Icon(
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .rotate(rotation.value),
+                                imageVector = Icons.Default.Refresh,
+                                tint = Color.Blue,
+                                contentDescription = "refreshIcon"
+                            )
                         else
-                           Icon(modifier = Modifier.size(30.dp), imageVector = Icons.Default.Done, tint = Color.Blue, contentDescription = "doneIcon")
+                            Icon(
+                                modifier = Modifier.size(30.dp),
+                                imageVector = Icons.Default.Done,
+                                tint = Color.Blue,
+                                contentDescription = "doneIcon"
+                            )
                     }
 
                 }
             }
 
-            if(isContactAvailable)
-            {
+            if (isContactAvailable) {
                 Spacer(modifier = Modifier.height(10.dp))
 
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    label = {Text(text = "Alarm name")},
+                    label = { Text(text = "Alarm name") },
                     value = alarmName,
-                    onValueChange ={ onAlarmNameChange(it)}
+                    onValueChange = { onAlarmNameChange(it) }
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    label = {Text(text = "Enter name to be modified")},
+                    label = { Text(text = "Enter name to be modified") },
                     value = modifiedName,
-                    onValueChange ={ onModifiedNameChange(it)}
+                    onValueChange = { onModifiedNameChange(it) }
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
-                    Button(modifier = Modifier.weight(0.45f), onClick = { onSelectOfStartingTime() }) {
+                    Button(
+                        modifier = Modifier.weight(0.45f),
+                        onClick = { onSelectOfStartingTime() }) {
                         Text(text = startingTime.ifEmpty { "Starting time" })
                     }
 
                     Spacer(modifier = Modifier.fillMaxWidth(0.1f))
 
-                    Button(modifier = Modifier.weight(0.45f),onClick = { onSelectOfEndingTime() }) {
+                    Button(
+                        modifier = Modifier.weight(0.45f),
+                        onClick = { onSelectOfEndingTime() }) {
                         Text(text = endingTime.ifEmpty { "Ending time" })
                     }
 
