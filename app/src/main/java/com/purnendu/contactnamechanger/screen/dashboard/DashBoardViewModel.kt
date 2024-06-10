@@ -1,4 +1,4 @@
-package com.purnendu.contactnamechanger.screen
+package com.purnendu.contactnamechanger.screen.dashboard
 
 import android.app.Application
 import androidx.compose.runtime.mutableStateOf
@@ -11,6 +11,7 @@ import com.purnendu.contactnamechanger.utils.alarmManager.AlarmManager
 import com.purnendu.contactnamechanger.utils.contactOperation.isContactExist
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import java.util.UUID
 import kotlin.random.Random
 
@@ -52,7 +53,11 @@ class DashBoardViewModel(private val application: Application): AndroidViewModel
                         alarmId = UUID.randomUUID().toString(),
                         startingAlarmRequestCode = startAlarmRequestCode.toString(),
                         endingAlarmRequestCode = endAlarmRequestCode.toString(),
-                        alarmName = alarmName
+                        alarmName = alarmName,
+                        startingAlarmTime = millisToHHMM(startAlarmTime),
+                        endingAlarmTime = millisToHHMM(endAlarmTime),
+                        phNo = phNo,
+                        modifiedName = modifiedName
 
                     )
                 )
@@ -77,5 +82,12 @@ class DashBoardViewModel(private val application: Application): AndroidViewModel
             alarmDao.deleteAlarm(startingRequestCode,endingRequestCode)
         }
 
+    }
+    private fun millisToHHMM(milliseconds: Long): String {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = milliseconds
+        val hourOfDay = calendar.get(Calendar.HOUR_OF_DAY)
+        val minuteOfHour = calendar.get(Calendar.MINUTE)
+        return String.format("%02d:%02d", hourOfDay, minuteOfHour)
     }
 }

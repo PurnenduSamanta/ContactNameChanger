@@ -9,5 +9,9 @@ data class Alarm(
     val alarmId: String,
     val startingAlarmRequestCode: String,
     val endingAlarmRequestCode: String,
-    val alarmName: String
+    val alarmName: String,
+    val startingAlarmTime: String,
+    val endingAlarmTime: String,
+    val phNo:String,
+    val modifiedName:String
 )
