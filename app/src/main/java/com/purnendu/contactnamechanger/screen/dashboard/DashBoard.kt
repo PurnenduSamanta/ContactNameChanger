@@ -1,6 +1,7 @@
 package com.purnendu.contactnamechanger.screen.dashboard
 
 import android.provider.ContactsContract
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
@@ -45,29 +46,11 @@ fun DashBoard(
 
     val context= LocalContext.current
 
-     val contactPickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickContact()) { contactUri ->
-        contactUri?.let {
-            val projection = arrayOf(ContactsContract.PhoneLookup._ID, ContactsContract.PhoneLookup.DISPLAY_NAME, ContactsContract.PhoneLookup.NUMBER)
-            val contentResolver = context.contentResolver
-            // Uri to search the contact using the phone number
-            val cursor = contentResolver.query(it, projection, null, null, null)
-            cursor?.use { cursor ->
-                if (cursor.moveToFirst()) {
-                    val IDIndex = cursor.getColumnIndex(ContactsContract.PhoneLookup._ID)
-                    val nameIndex = cursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME)
-                    val numberIndex = cursor.getColumnIndex(ContactsContract.PhoneLookup.NUMBER)
 
-                    val id = if (IDIndex != -1) cursor.getLong(IDIndex) else null
-                    val name = if (nameIndex != -1) cursor.getString(nameIndex) else null
-                    val number = if (numberIndex != -1) cursor.getString(numberIndex) else null
-                }
-            }
-        }
-    }
 
     val scope = rememberCoroutineScope()
 
-    val isPhNoDialogVisible = remember { mutableStateOf(false) }
+    val isAlarmSelectorDialogVisible = remember { mutableStateOf(false) }
     val alarmName = remember { mutableStateOf("") }
     val phNo = remember { mutableStateOf("") }
     val modifiedName = remember { mutableStateOf("") }
@@ -78,6 +61,37 @@ fun DashBoard(
     val startingTimePickerState = rememberTimePickerState(is24Hour = true)
     val endingTimePickerState = rememberTimePickerState(is24Hour = true)
     val alarmList = viewModel.getAlarms().collectAsState(initial = emptyList()).value
+
+
+    val contactPickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickContact()) { contactUri ->
+        contactUri?.let {
+            val projection = arrayOf(ContactsContract.PhoneLookup._ID, ContactsContract.PhoneLookup.DISPLAY_NAME, ContactsContract.PhoneLookup.NUMBER)
+            val contentResolver = context.contentResolver
+            val cursor = contentResolver.query(contactUri, projection, null, null, null)
+            cursor?.use { cursor ->
+                isAlarmSelectorDialogVisible.value=true
+                if (cursor.moveToFirst()) {
+                    val IDIndex = cursor.getColumnIndex(ContactsContract.PhoneLookup._ID)
+                    val nameIndex = cursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME)
+                    val numberIndex = cursor.getColumnIndex(ContactsContract.PhoneLookup.NUMBER)
+
+                    val id = if (IDIndex != -1) cursor.getLong(IDIndex) else null
+                    val name = if (nameIndex != -1) cursor.getString(nameIndex) else null
+                    val number = if (numberIndex != -1) cursor.getString(numberIndex) else null
+
+                    Toast.makeText(context, name, Toast.LENGTH_SHORT).show()
+
+                    if(name!=null)
+                        alarmName.value=name
+
+                    if(number!=null)
+                        phNo.value=number
+
+                }
+                cursor.close()
+            }
+        }
+    }
 
 
     Scaffold(
@@ -128,31 +142,21 @@ fun DashBoard(
         }
 
 
-        if (isPhNoDialogVisible.value) {
+        if (isAlarmSelectorDialogVisible.value) {
             CustomPhDialog(
-                title = "Select Contact",
-                label = "Mobile No",
-                phNo = phNo.value,
+                title = "Set Alarm",
                 alarmName = alarmName.value,
                 modifiedName = modifiedName.value,
-                onPhNoChange = { phNo.value = it },
                 startingTime = startingTime.value.first,
                 endingTime = endingTime.value.first,
                 onAlarmNameChange = { alarmName.value = it },
-                onDoneButtonClick = {
-                    if (phNo.value.isEmpty() || phNo.value.isBlank())
-                        return@CustomPhDialog
-                    viewModel.isContactExist(phNo.value)
-                },
                 onModifiedNameChange = { modifiedName.value = it },
-                isOperationGoing = false,
-                isContactAvailable = viewModel.isContactExist.value != null,
                 onCrossIconClick = {
                     phNo.value = ""
                     alarmName.value = ""
                     modifiedName.value = ""
                     viewModel.setContactStatusToNull()
-                    isPhNoDialogVisible.value = false
+                    isAlarmSelectorDialogVisible.value = false
                     startingTime.value = Pair("", 0L)
                     endingTime.value = Pair("", 0L)
                     isStartingTimePickerVisible.value = false
@@ -169,13 +173,11 @@ fun DashBoard(
                         name = viewModel.isContactExist.value?.name ?: "",
                         modifiedName = modifiedName.value
                     )
-
-
                     phNo.value = ""
                     alarmName.value = ""
                     modifiedName.value = ""
                     viewModel.setContactStatusToNull()
-                    isPhNoDialogVisible.value = false
+                    isAlarmSelectorDialogVisible.value = false
                     startingTime.value = Pair("", 0L)
                     endingTime.value = Pair("", 0L)
                     isStartingTimePickerVisible.value = false
@@ -190,7 +192,9 @@ fun DashBoard(
                 .fillMaxSize()
         ) {
 
-            LazyColumn(modifier = Modifier.fillMaxWidth().padding(10.dp))
+            LazyColumn(modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp))
             {
                 itemsIndexed(alarmList)
                 { index, item ->
